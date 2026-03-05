@@ -9,8 +9,8 @@ The rest of the codebase only ever talks to this contract —
 so swapping backends requires zero changes anywhere else.
 """
 
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from abc import ABC, abstractmethod # this is how we define an abstract base class
+from dataclasses import dataclass # this is how we define a dataclass
 
 
 @dataclass
