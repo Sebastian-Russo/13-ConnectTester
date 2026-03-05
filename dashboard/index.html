@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connect Tester</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d1117;
+      color: #e0e0e0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── Nav ── */
+    nav {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    nav h1 {
+      font-size: 1.1rem;
+      color: #58a6ff;
+      font-weight: 700;
+    }
+
+    .nav-badge {
+      font-size: 0.72rem;
+      background: #1f3a6b;
+      color: #58a6ff;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .nav-right {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: #1f3a6b;
+      border-color: #58a6ff;
+      color: #58a6ff;
+    }
+
+    /* ── Layout ── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 28px 24px; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    /* ── Panels ── */
+    .panel {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 22px;
+    }
+
+    .panel-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #58a6ff;
+      margin-bottom: 16px;
+    }
+
+    /* ── Stat cards ── */
+    .stat-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #58a6ff;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Forms ── */
+    label {
+      display: block;
+      font-size: 0.8rem;
+      color: #8b949e;
+      margin-bottom: 6px;
+      margin-top: 14px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-size: 0.88rem;
+      padding: 10px 12px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #58a6ff;
+    }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    .checkbox-row {
+      display: flex;
+      gap: 16px;
+      margin-top: 6px;
+    }
+
+    .checkbox-row label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+      cursor: pointer;
+      color: #e0e0e0;
+      font-size: 0.88rem;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: auto;
+      padding: 0;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      margin-top: 16px;
+    }
+
+    .btn-primary { background: #238636; color: #fff; }
+    .btn-primary:hover { background: #2ea043; }
+    .btn-primary:disabled { background: #333; color: #666; cursor: not-allowed; }
+    .btn-secondary { background: #1f3a6b; color: #58a6ff; }
+    .btn-secondary:hover { background: #264a8a; }
+
+    /* ── Progress ── */
+    .progress-wrap { display: none; margin-top: 16px; }
+    .progress-bar  { background: #30363d; border-radius: 4px; height: 4px; overflow: hidden; }
+    .progress-fill {
+      height: 100%;
+      background: #58a6ff;
+      border-radius: 4px;
+      animation: progress-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes progress-pulse {
+      0%, 100% { width: 20%; margin-left: 0; }
+      50%       { width: 50%; margin-left: 25%; }
+    }
+    .progress-text { font-size: 0.8rem; color: #58a6ff; margin-top: 8px; }
+
+    /* ── Results table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      color: #8b949e;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #30363d;
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #1c2128;
+      color: #c9d1d9;
+    }
+
+    tr:hover td { background: #1c2128; cursor: pointer; }
+
+    /* ── Grade badges ── */
+    .grade {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 28px;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .grade-A { background: #0d2a0d; color: #3fb950; border: 2px solid #3fb950; }
+    .grade-B { background: #0d1a2a; color: #58a6ff; border: 2px solid #58a6ff; }
+    .grade-C { background: #2a1d0d; color: #d29922; border: 2px solid #d29922; }
+    .grade-D { background: #2a0d0d; color: #f85149; border: 2px solid #f85149; }
+    .grade-F { background: #2a0d0d; color: #f85149; border: 2px solid #f85149; }
+
+    /* ── Score colors ── */
+    .score-high   { color: #3fb950; font-weight: 600; }
+    .score-medium { color: #d29922; font-weight: 600; }
+    .score-low    { color: #f85149; font-weight: 600; }
+
+    /* ── Backend comparison ── */
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .backend-card {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .backend-name {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #8b949e;
+      margin-bottom: 8px;
+    }
+
+    .backend-score {
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+
+    .backend-anthropic { color: #d29922; }
+    .backend-bedrock   { color: #3fb950; }
+
+    /* ── Detail panel ── */
+    .detail-section { margin-bottom: 20px; }
+
+    .detail-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #58a6ff;
+      margin-bottom: 10px;
+    }
+
+    .detail-item {
+      background: #0d1117;
+      border-left: 3px solid #30363d;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+      color: #c9d1d9;
+      border-radius: 0 6px 6px 0;
+    }
+
+    .detail-item.strength  { border-color: #3fb950; }
+    .detail-item.weakness  { border-color: #f85149; }
+    .detail-item.rec       { border-color: #58a6ff; }
+    .detail-item.fallout   { border-color: #d29922; }
+
+    /* ── Dimension scores ── */
+    .dimension-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .dimension-label {
+      font-size: 0.78rem;
+      color: #8b949e;
+      width: 160px;
+      flex-shrink: 0;
+    }
+
+    .dimension-bar-wrap {
+      flex: 1;
+      background: #30363d;
+      border-radius: 4px;
+      height: 6px;
+      overflow: hidden;
+    }
+
+    .dimension-bar {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    .dimension-value {
+      font-size: 0.82rem;
+      font-weight: 600;
+      width: 36px;
+      text-align: right;
+    }
+
+    /* ── Transcript ── */
+    .transcript-turn {
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+    }
+
+    .turn-caller  { text-align: right; }
+    .turn-connect { text-align: left;  }
+
+    .turn-bubble {
+      display: inline-block;
+      max-width: 75%;
+      padding: 8px 12px;
+      border-radius: 10px;
+      line-height: 1.5;
+    }
+
+    .turn-caller  .turn-bubble { background: #1f3a6b; color: #c9d1d9; }
+    .turn-connect .turn-bubble { background: #1c2128; color: #c9d1d9; }
+
+    .turn-meta {
+      font-size: 0.72rem;
+      color: #555;
+      margin-top: 3px;
+    }
+
+    /* ── Tabs ── */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center;
+      padding: 60px 0;
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    /* ── Error ── */
+    .error-msg { color: #f85149; font-size: 0.82rem; margin-top: 8px; }
+
+    /* ── Scrollable ── */
+    .scroll-box { max-height: 400px; overflow-y: auto; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <h1>🔗 Connect Tester</h1>
+  <span class="nav-badge">Voice Mode</span>
+  <div class="nav-right">
+    <button class="tab-btn active" onclick="showView('run')">Run Suite</button>
+    <button class="tab-btn" onclick="showView('results')">Results</button>
+    <button class="tab-btn" onclick="showView('compare')">Backend Compare</button>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- ── Run Suite View ── -->
+  <div id="view-run" class="view active">
+    <div class="grid-2">
+
+      <!-- Config panel -->
+      <div class="panel">
+        <div class="panel-title">Suite Configuration</div>
+
+        <label>Flow Type</label>
+        <select id="flow-type">
+          <option value="hotel_reservation">Hotel Reservation</option>
+          <option value="flight_booking">Flight Booking</option>
+          <option value="tech_support">Tech Support</option>
+          <option value="custom">Custom</option>
+        </select>
+
+        <label>Flow Context</label>
+        <textarea id="flow-context" placeholder="Describe what the contact flow handles...">Handles hotel room reservations including booking rooms for specific dates and cities, check-in and check-out times, pet policies, amenities, and cancellation policies. Backed by a Bedrock agent with hotel database access.</textarea>
+
+        <label>Twilio Stream URL</label>
+        <input id="stream-url" type="text" placeholder="wss://your-ngrok-url/stream/ws">
+
+        <label>Number of Personas</label>
+        <select id="persona-count">
+          <option value="2">2 — Quick test</option>
+          <option value="3" selected>3 — Standard</option>
+          <option value="5">5 — Full suite</option>
+          <option value="10">10 — Comprehensive</option>
+        </select>
+
+        <label>AI Backends</label>
+        <div class="checkbox-row">
+          <label><input type="checkbox" id="use-anthropic" checked> Anthropic</label>
+          <label><input type="checkbox" id="use-bedrock" checked> Bedrock</label>
+        </div>
+
+        <button class="btn btn-primary" id="run-btn" onclick="runSuite()">
+          ▶ Run Test Suite
+        </button>
+        <div class="error-msg" id="run-error"></div>
+
+        <div class="progress-wrap" id="run-progress">
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="progress-text" id="progress-text">Generating personas...</div>
+        </div>
+      </div>
+
+      <!-- Live output panel -->
+      <div class="panel">
+        <div class="panel-title">Suite Output</div>
+        <div id="suite-output" class="empty">Run a suite to see results here.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Results View ── -->
+  <div id="view-results" class="view">
+
+    <div class="grid-3" id="summary-stats" style="display:none;">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-label">Total Runs</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-avg">—</div>
+        <div class="stat-label">Avg Score</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-pass">—</div>
+        <div class="stat-label">Pass Rate</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Results table -->
+      <div class="panel">
+        <div class="panel-title">Test Runs</div>
+        <div id="results-table-wrap">
+          <div class="empty">No results yet. Run a test suite first.</div>
+        </div>
+      </div>
+
+      <!-- Run detail -->
+      <div class="panel">
+        <div class="panel-title">Run Detail</div>
+        <div id="run-detail">
+          <div class="empty">Select a run to see details.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Backend Compare View ── -->
+  <div id="view-compare" class="view">
+    <div class="panel" id="compare-panel">
+      <div class="empty">Run a suite with both backends to see comparison.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let suiteData    = null;
+  let selectedRun  = null;
+
+  // ── View switching ───────────────────────────────────────────────────────
+
+  function showView(name) {
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById(`view-${name}`).classList.add("active");
+    event.target.classList.add("active");
+  }
+
+  // ── Run suite ────────────────────────────────────────────────────────────
+
+  async function runSuite() {
+    const flowType   = document.getElementById("flow-type").value;
+    const flowContext = document.getElementById("flow-context").value.trim();
+    const streamUrl  = document.getElementById("stream-url").value.trim();
+    const count      = parseInt(document.getElementById("persona-count").value);
+    const errEl      = document.getElementById("run-error");
+
+    errEl.textContent = "";
+
+    if (!flowContext) { errEl.textContent = "Flow context is required."; return; }
+    if (!streamUrl)   { errEl.textContent = "Stream URL is required."; return; }
+
+    const backends = [];
+    if (document.getElementById("use-anthropic").checked) backends.push("anthropic");
+    if (document.getElementById("use-bedrock").checked)   backends.push("bedrock");
+    if (!backends.length) { errEl.textContent = "Select at least one backend."; return; }
+
+    document.getElementById("run-btn").disabled = true;
+    document.getElementById("run-progress").style.display = "block";
+    document.getElementById("suite-output").innerHTML = "";
+    setProgress("Generating personas...");
+
+    try {
+      const res  = await fetch("/suite/run", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({
+          flow_type:     flowType,
+          flow_context:  flowContext,
+          stream_url:    streamUrl,
+          persona_count: count,
+          backends
+        })
+      });
+
+      const data = await res.json();
+
+      document.getElementById("run-btn").disabled = false;
+      document.getElementById("run-progress").style.display = "none";
+
+      if (data.error) { errEl.textContent = data.error; return; }
+
+      suiteData = data;
+      renderSuiteOutput(data);
+      renderResults(data);
+      if (data.backend_comparison) renderComparison(data.backend_comparison);
+
+    } catch (e) {
+      document.getElementById("run-btn").disabled = false;
+      document.getElementById("run-progress").style.display = "none";
+      errEl.textContent = `Request failed: ${e.message}`;
+    }
+  }
+
+  function setProgress(msg) {
+    document.getElementById("progress-text").textContent = msg;
+  }
+
+  // ── Suite output ─────────────────────────────────────────────────────────
+
+  function renderSuiteOutput(data) {
+    const report = data.suite_report;
+    const el     = document.getElementById("suite-output");
+
+    el.innerHTML = `
+      <div style="text-align:center; margin-bottom:20px;">
+        <div style="font-size:2.5rem; font-weight:700; color:#58a6ff; margin-bottom:4px;">
+          ${report.average_score.toFixed(1)}<span style="font-size:1rem; color:#8b949e;">/10</span>
+        </div>
+        <div style="font-size:0.82rem; color:#8b949e;">
+          ${report.total_runs} runs · ${report.passed_runs} passed · ${data.duration}s
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-title">Common Weaknesses</div>
+        ${(report.common_weaknesses || []).map(w =>
+          `<div class="detail-item weakness">${w}</div>`
+        ).join("") || '<div style="color:#555; font-size:0.85rem;">None identified</div>'}
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-title">Top Recommendations</div>
+        ${(report.top_recommendations || []).map((r, i) =>
+          `<div class="detail-item rec"><strong>${i+1}.</strong> ${r}</div>`
+        ).join("") || '<div style="color:#555; font-size:0.85rem;">None</div>'}
+      </div>
+    `;
+  }
+
+  // ── Results table ────────────────────────────────────────────────────────
+
+  function renderResults(data) {
+    const report = data.suite_report;
+    const runs   = report.run_reports || [];
+
+    // Summary stats
+    const passRate = report.total_runs
+      ? Math.round((report.passed_runs / report.total_runs) * 100)
+      : 0;
+
+    document.getElementById("summary-stats").style.display = "grid";
+    document.getElementById("stat-total").textContent = report.total_runs;
+    document.getElementById("stat-avg").textContent   = report.average_score.toFixed(1);
+    document.getElementById("stat-pass").textContent  = `${passRate}%`;
+
+    if (!runs.length) {
+      document.getElementById("results-table-wrap").innerHTML =
+        '<div class="empty">No run reports available.</div>';
+      return;
+    }
+
+    const rows = runs.map((run, i) => `
+      <tr onclick="showRunDetail(${i})">
+        <td><span class="grade grade-${run.grade}">${run.grade}</span></td>
+        <td>${run.persona}</td>
+        <td>${run.scenario}</td>
+        <td><span class="${scoreClass(run.overall_score)}">${run.overall_score.toFixed(1)}</span></td>
+        <td><span style="font-size:0.78rem; color:#8b949e;">${run.backend}</span></td>
+      </tr>
+    `).join("");
+
+    document.getElementById("results-table-wrap").innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Grade</th>
+            <th>Persona</th>
+            <th>Scenario</th>
+            <th>Score</th>
+            <th>Backend</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  }
+
+  function showRunDetail(idx) {
+    const runs = suiteData?.suite_report?.run_reports || [];
+    const run  = runs[idx];
+    if (!run) return;
+
+    selectedRun = run;
+
+    const dims = [
+      { label: "Goal Completion",      key: "goal_completion" },
+      { label: "Turn Efficiency",      key: "turn_efficiency" },
+      { label: "Intent Accuracy",      key: "intent_accuracy" },
+      { label: "Sentiment Trajectory", key: "sentiment_trajectory" },
+      { label: "Fallout Risk",         key: "fallout_risk" }
+    ];
+
+    const dimBars = dims.map(d => {
+      const val   = run.scores?.[d.key] || 0;
+      const color = val >= 7 ? "#3fb950" : val >= 5 ? "#d29922" : "#f85149";
+      return `
+        <div class="dimension-row">
+          <div class="dimension-label">${d.label}</div>
+          <div class="dimension-bar-wrap">
+            <div class="dimension-bar" style="width:${val*10}%; background:${color};"></div>
+          </div>
+          <div class="dimension-value ${scoreClass(val)}">${val.toFixed(1)}</div>
+        </div>
+      `;
+    }).join("");
+
+    document.getElementById("run-detail").innerHTML = `
+      <div style="margin-bottom:16px;">
+        <span class="grade grade-${run.grade}" style="width:36px;height:36px;line-height:36px;font-size:1rem;">${run.grade}</span>
+        <span style="margin-left:10px; font-weight:600;">${run.persona}</span>
+        <span style="color:#8b949e; font-size:0.82rem; margin-left:8px;">via ${run.backend}</span>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-title">Dimension Scores</div>
+        ${dimBars}
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-title">Strengths</div>
+        ${(run.strengths || []).map(s =>
+          `<div class="detail-item strength">${s}</div>`
+        ).join("") || '<div style="color:#555;font-size:0.85rem;">None noted</div>'}
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-title">Weaknesses</div>
+        ${(run.weaknesses || []).map(w =>
+          `<div class="detail-item weakness">${w}</div>`
+        ).join("") || '<div style="color:#555;font-size:0.85rem;">None noted</div>'}
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-title">Fallout Points</div>
+        ${(run.fallout_points || []).map(f =>
+          `<div class="detail-item fallout">${f}</div>`
+        ).join("") || '<div style="color:#555;font-size:0.85rem;">No fallout points identified</div>'}
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-title">Recommendations</div>
+        ${(run.recommendations || []).map((r, i) =>
+          `<div class="detail-item rec"><strong>${i+1}.</strong> ${r}</div>`
+        ).join("") || '<div style="color:#555;font-size:0.85rem;">None</div>'}
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-title">Summary</div>
+        <div style="font-size:0.85rem; color:#c9d1d9; line-height:1.7;">${run.summary}</div>
+      </div>
+    `;
+
+    // Switch to results view
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+    document.getElementById("view-results").classList.add("active");
+    document.querySelectorAll(".tab-btn").forEach((b, i) => {
+      b.classList.toggle("active", i === 1);
+    });
+  }
+
+  // ── Backend comparison ───────────────────────────────────────────────────
+
+  function renderComparison(comparison) {
+    if (!comparison) return;
+
+    const dims = Object.entries(comparison.dimension_comparison || {});
+
+    const dimRows = dims.map(([dim, delta]) => {
+      const label  = dim.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const color  = delta > 0 ? "#3fb950" : delta < 0 ? "#f85149" : "#8b949e";
+      const prefix = delta > 0 ? "+" : "";
+      return `
+        <tr>
+          <td style="color:#8b949e;">${label}</td>
+          <td style="color:${color}; font-weight:600;">${prefix}${delta.toFixed(2)}</td>
+          <td style="color:#8b949e; font-size:0.78rem;">${delta > 0 ? "Bedrock better" : delta < 0 ? "Anthropic better" : "Equal"}</td>
+        </tr>
+      `;
+    }).join("");
+
+    document.getElementById("compare-panel").innerHTML = `
+      <div class="panel-title">Backend Comparison</div>
+
+      <div class="comparison-grid">
+        <div class="backend-card">
+          <div class="backend-name">Anthropic</div>
+          <div class="backend-score backend-anthropic">
+            ${comparison.anthropic_avg_score.toFixed(1)}
+          </div>
+          <div style="font-size:0.78rem; color:#8b949e; margin-top:4px;">
+            avg ${comparison.anthropic_avg_turns.toFixed(1)} turns
+          </div>
+        </div>
+        <div class="backend-card">
+          <div class="backend-name">Bedrock</div>
+          <div class="backend-score backend-bedrock">
+            ${comparison.bedrock_avg_score.toFixed(1)}
+          </div>
+          <div style="font-size:0.78rem; color:#8b949e; margin-top:4px;">
+            avg ${comparison.bedrock_avg_turns.toFixed(1)} turns
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <div class="detail-title">Dimension Delta (Bedrock − Anthropic)</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Dimension</th>
+              <th>Delta</th>
+              <th>Winner</th>
+            </tr>
+          </thead>
+          <tbody>${dimRows}</tbody>
+        </table>
+      </div>
+
+      <div class="detail-item rec" style="line-height:1.6;">
+        <strong>Recommendation:</strong> ${comparison.recommendation}
+      </div>
+    `;
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  function scoreClass(score) {
+    if (score >= 7) return "score-high";
+    if (score >= 5) return "score-medium";
+    return "score-low";
+  }
+</script>
+</body>
+</html>
